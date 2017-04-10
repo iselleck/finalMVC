@@ -54,8 +54,6 @@ const getDomos = (request, response) => {
         
         return res.json({ domo: docs });
     });
-    
-    res.json(csrfJSON);
 };
 
 module.exports.makerPage = makerPage;
