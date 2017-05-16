@@ -13,7 +13,7 @@ const csrf = require('csurf');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/DomoMaker';
+const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/TaskPlaner';
 
 mongoose.connect(dbURL, (err) => {
     if(err) {
@@ -38,6 +38,7 @@ const router = require('./router.js');
 
 const app = express();
 app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted`)));
+// image Checkbox by Adrien Coquet from the Noun Project
 app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
 app.disable('x-powered-by');
 app.use(compression());

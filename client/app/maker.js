@@ -1,83 +1,86 @@
-let domoRenderer;
-let domoForm;
-let DomoFormClass;
-let DomoListClass;
+let taskRenderer;
+let taskForm;
+let TaskFormClass;
+let TaskListClass;
 
-const handleDomo = (e) => {
+const handleTask = (e) => {
     e.preventDefault();
     
-    $("#domoMessage").animate({width:'hide'},350);
-    
-    if($("#domoName").val() == '' || $("#domoAge").val() == '') {
-        handleError("RAWR! All fields are required");
+    if($("#dueDate").val() == '' || $("#aTask").val() == '') {
+        handleError("Both a task and due date are required");
         return false;
     }
     
-    sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function() {
-        domoRenderer.loadDomosFromServer();
+    sendAjax('POST', $("#taskForm").attr("action"), $("#taskForm").serialize(), function() {
+        taskRenderer.loadTasksFromServer();
     });
 
     return false;
 };
 
-const renderDomo = function() {
+const renderTask = function() {
     return (
-        <form id="domoForm"
+        <form id="taskForm"
               onSubmit={this.handleSubmit}
-              name="domoForm"
+              name="taskForm"
               action="/maker"
               method="POST"
-              className="domoForm"
+              className="taskForm"
         >
-        <label htmlFor="name">Name: </label>
-        <input id="domoName" type="text" name="name" placeholder="Domo Name"/>
-        <label htmlFor="age">Age: </label>
-        <input id="domoAge" type="text" name="age" placeholder="Domo Age"/>
+        <label htmlFor="duedate">Date: </label>
+        <input id="dueDate" type="text" name="duedate" placeholder="Complete date"/>
+        <label htmlFor="task">Task: </label>
+        <input id="aTask" type="text" name="task" placeholder="Enter Task" />
+        
+        
         <input type="hidden" name="_csrf" value={this.props.csrf} />
-        <input className="makeDomoSubmit" type="submit" value="Make Domo" />    
+        <input className="makeTaskSubmit" type="submit" value="Add Task" />    
         </form>
     );
 };
 
-const renderDomoList = function() {
+const renderTaskList = function() {
 
     if(this.state.data.length === 0) {
         return (
-            <div className="domoList">
-              <h3 className="emptyDomo">No Domos yet</h3>
+            <div className="taskList">
+              <h3 className="emptyTask">No tasks. Add some above</h3>
             </div>
         );
     }
     
-    const domoNodes = this.state.data.map(function(domo) {
+  
+    
+    const taskNodes = this.state.data.map(function(tasked) {
+        console.log(tasked);
         return (
-            <div key={domo._id} className="domo">
-               <img src="/assets/img/domoface.jpeg" alt="domo face" className="domoFace" />
-              <h3 className="domoName"> Name: {domo.name} </h3>
-              <h3 className="domoAge"> Age: {domo.age} </h3>
+            <div key={tasked._id} className="tasked">
+            <h3 className="dueDate">Due: {tasked.duedate} </h3>
+               <h3 className="aTask">Task:  </h3>
+            <p> {tasked.task} </p>
             </div>
         );
     });
  
     
     return (
-        <div className="domoList">
-            {domoNodes}
+        <div className="taskList">
+            {taskNodes}
         </div>
     );
         
 };
 
 const setup = function(csrf) {
-    DomoFormClass = React.createClass({
-        handleSubmit: handleDomo,
-        render: renderDomo,
+    TaskFormClass = React.createClass({
+        handleSubmit: handleTask,
+        render: renderTask,
     });
     
-    DomoListClass = React.createClass({
-        loadDomosFromServer: function() {
-            sendAjax('GET', '/getDomos', null, function(data) {
-                this.setState({data:data.domo});
+    TaskListClass = React.createClass({
+        loadTasksFromServer: function() {
+            sendAjax('GET', '/getTasks', null, function(data) {
+                this.setState({data:data.task});
             }.bind(this));
         },
         
@@ -86,17 +89,17 @@ const setup = function(csrf) {
         },
         
         componentDidMount: function() {
-            this.loadDomosFromServer();
+            this.loadTasksFromServer();
         },
-        render: renderDomoList
+        render: renderTaskList
     });
     
-    domoForm = ReactDOM.render(
-        <DomoFormClass csrf={csrf} />, document.querySelector("#makeDomo")
+    taskForm = ReactDOM.render(
+        <TaskFormClass csrf={csrf} />, document.querySelector("#makeTask")
     );
     
-     domoRenderer = ReactDOM.render(
-        <DomoListClass />, document.querySelector("#domos")
+     taskRenderer = ReactDOM.render(
+        <TaskListClass />, document.querySelector("#tasks")
     );
 };
 

@@ -1,85 +1,88 @@
 "use strict";
 
-var domoRenderer = void 0;
-var domoForm = void 0;
-var DomoFormClass = void 0;
-var DomoListClass = void 0;
+var taskRenderer = void 0;
+var taskForm = void 0;
+var TaskFormClass = void 0;
+var TaskListClass = void 0;
 
-var handleDomo = function handleDomo(e) {
+var handleTask = function handleTask(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
-
-    if ($("#domoName").val() == '' || $("#domoAge").val() == '') {
-        handleError("RAWR! All fields are required");
+    if ($("#dueDate").val() == '' || $("#aTask").val() == '') {
+        handleError("Both a task and due date are required");
         return false;
     }
 
-    sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function () {
-        domoRenderer.loadDomosFromServer();
+    sendAjax('POST', $("#taskForm").attr("action"), $("#taskForm").serialize(), function () {
+        taskRenderer.loadTasksFromServer();
     });
 
     return false;
 };
 
-var renderDomo = function renderDomo() {
+var renderTask = function renderTask() {
     return React.createElement(
         "form",
-        { id: "domoForm",
+        { id: "taskForm",
             onSubmit: this.handleSubmit,
-            name: "domoForm",
+            name: "taskForm",
             action: "/maker",
             method: "POST",
-            className: "domoForm"
+            className: "taskForm"
         },
         React.createElement(
             "label",
-            { htmlFor: "name" },
-            "Name: "
+            { htmlFor: "duedate" },
+            "Date: "
         ),
-        React.createElement("input", { id: "domoName", type: "text", name: "name", placeholder: "Domo Name" }),
+        React.createElement("input", { id: "dueDate", type: "text", name: "duedate", placeholder: "Complete date" }),
         React.createElement(
             "label",
-            { htmlFor: "age" },
-            "Age: "
+            { htmlFor: "task" },
+            "Task: "
         ),
-        React.createElement("input", { id: "domoAge", type: "text", name: "age", placeholder: "Domo Age" }),
+        React.createElement("input", { id: "aTask", type: "text", name: "task", placeholder: "Enter Task" }),
         React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
-        React.createElement("input", { className: "makeDomoSubmit", type: "submit", value: "Make Domo" })
+        React.createElement("input", { className: "makeTaskSubmit", type: "submit", value: "Add Task" })
     );
 };
 
-var renderDomoList = function renderDomoList() {
+var renderTaskList = function renderTaskList() {
 
     if (this.state.data.length === 0) {
         return React.createElement(
             "div",
-            { className: "domoList" },
+            { className: "taskList" },
             React.createElement(
                 "h3",
-                { className: "emptyDomo" },
-                "No Domos yet"
+                { className: "emptyTask" },
+                "No tasks. Add some above"
             )
         );
     }
 
-    var domoNodes = this.state.data.map(function (domo) {
+    var taskNodes = this.state.data.map(function (tasked) {
+        console.log(tasked);
         return React.createElement(
             "div",
-            { key: domo._id, className: "domo" },
-            React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
+            { key: tasked._id, className: "tasked" },
             React.createElement(
                 "h3",
-                { className: "domoName" },
-                " Name: ",
-                domo.name,
+                { className: "dueDate" },
+                "Due: ",
+                tasked.duedate,
                 " "
             ),
             React.createElement(
                 "h3",
-                { className: "domoAge" },
-                " Age: ",
-                domo.age,
+                { className: "aTask" },
+                "Task:  "
+            ),
+            React.createElement(
+                "p",
+                null,
+                " ",
+                tasked.task,
                 " "
             )
         );
@@ -87,25 +90,25 @@ var renderDomoList = function renderDomoList() {
 
     return React.createElement(
         "div",
-        { className: "domoList" },
-        domoNodes
+        { className: "taskList" },
+        taskNodes
     );
 };
 
 var setup = function setup(csrf) {
-    DomoFormClass = React.createClass({
-        displayName: "DomoFormClass",
+    TaskFormClass = React.createClass({
+        displayName: "TaskFormClass",
 
-        handleSubmit: handleDomo,
-        render: renderDomo
+        handleSubmit: handleTask,
+        render: renderTask
     });
 
-    DomoListClass = React.createClass({
-        displayName: "DomoListClass",
+    TaskListClass = React.createClass({
+        displayName: "TaskListClass",
 
-        loadDomosFromServer: function loadDomosFromServer() {
-            sendAjax('GET', '/getDomos', null, function (data) {
-                this.setState({ data: data.domo });
+        loadTasksFromServer: function loadTasksFromServer() {
+            sendAjax('GET', '/getTasks', null, function (data) {
+                this.setState({ data: data.task });
             }.bind(this));
         },
 
@@ -114,14 +117,14 @@ var setup = function setup(csrf) {
         },
 
         componentDidMount: function componentDidMount() {
-            this.loadDomosFromServer();
+            this.loadTasksFromServer();
         },
-        render: renderDomoList
+        render: renderTaskList
     });
 
-    domoForm = ReactDOM.render(React.createElement(DomoFormClass, { csrf: csrf }), document.querySelector("#makeDomo"));
+    taskForm = ReactDOM.render(React.createElement(TaskFormClass, { csrf: csrf }), document.querySelector("#makeTask"));
 
-    domoRenderer = ReactDOM.render(React.createElement(DomoListClass, null), document.querySelector("#domos"));
+    taskRenderer = ReactDOM.render(React.createElement(TaskListClass, null), document.querySelector("#tasks"));
 };
 
 var getToken = function getToken() {
@@ -137,11 +140,9 @@ $(document).ready(function () {
 
 var handleError = function handleError(message) {
     $("#errorMessage").text(message);
-    $("#domoMessage").animate({ width: 'toggle' }, 350);
 };
 
 var redirect = function redirect(response) {
-    $("#domoMessage").animate({ width: 'hide' }, 350);
     window.location = response.redirect;
 };
 
